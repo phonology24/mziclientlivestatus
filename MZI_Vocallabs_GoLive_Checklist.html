@@ -1,0 +1,580 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>MZI x Vocallabs — Go-Live Checklist</title>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; background: #f5f6fa; color: #1a1a2e; }
+
+  header { background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%); color: white; padding: 28px 32px; }
+  header h1 { font-size: 22px; font-weight: 700; letter-spacing: -0.3px; }
+  header p { font-size: 13px; color: #aab4c8; margin-top: 4px; }
+
+  .tabs { display: flex; background: #fff; border-bottom: 1px solid #e2e6ea; padding: 0 24px; position: sticky; top: 0; z-index: 10; box-shadow: 0 1px 4px rgba(0,0,0,0.06); }
+  .tab { padding: 14px 20px; font-size: 14px; font-weight: 600; cursor: pointer; border-bottom: 3px solid transparent; color: #6b7280; transition: all 0.2s; }
+  .tab.active { border-bottom-color: #6366f1; color: #6366f1; }
+  .tab:hover:not(.active) { color: #374151; }
+
+  .panel { display: none; padding: 24px 32px 48px; max-width: 900px; margin: 0 auto; }
+  .panel.active { display: block; }
+
+  .client-select { display: flex; align-items: center; gap: 12px; margin-bottom: 24px; flex-wrap: wrap; }
+  .client-select label { font-size: 13px; font-weight: 600; color: #6b7280; text-transform: uppercase; letter-spacing: 0.5px; }
+  select { padding: 8px 12px; border: 1px solid #d1d5db; border-radius: 8px; font-size: 14px; background: white; cursor: pointer; color: #1a1a2e; }
+  .progress-bar-wrap { flex: 1; min-width: 180px; }
+  .progress-label { font-size: 12px; color: #6b7280; margin-bottom: 4px; }
+  .progress-bar { height: 8px; background: #e5e7eb; border-radius: 99px; overflow: hidden; }
+  .progress-fill { height: 100%; background: linear-gradient(90deg, #6366f1, #8b5cf6); border-radius: 99px; transition: width 0.4s ease; }
+  .progress-pct { font-size: 13px; font-weight: 700; color: #6366f1; margin-top: 4px; }
+
+  .section { background: white; border-radius: 12px; border: 1px solid #e5e7eb; margin-bottom: 16px; overflow: hidden; }
+  .section-header { padding: 14px 20px; background: #f9fafb; border-bottom: 1px solid #e5e7eb; display: flex; align-items: center; gap: 10px; }
+  .section-icon { font-size: 18px; }
+  .section-title { font-size: 14px; font-weight: 700; color: #111827; }
+  .section-count { margin-left: auto; font-size: 12px; color: #6b7280; background: #e5e7eb; padding: 2px 8px; border-radius: 99px; }
+
+  .item { display: flex; align-items: flex-start; gap: 12px; padding: 12px 20px; border-bottom: 1px solid #f3f4f6; cursor: pointer; transition: background 0.1s; }
+  .item:last-child { border-bottom: none; }
+  .item:hover { background: #f9fafb; }
+  .item.checked { background: #f0fdf4; }
+  .item.checked .item-text { color: #6b7280; text-decoration: line-through; }
+
+  .checkbox { width: 20px; height: 20px; border: 2px solid #d1d5db; border-radius: 6px; flex-shrink: 0; margin-top: 1px; display: flex; align-items: center; justify-content: center; transition: all 0.2s; }
+  .item.checked .checkbox { background: #22c55e; border-color: #22c55e; }
+  .checkmark { color: white; font-size: 13px; display: none; }
+  .item.checked .checkmark { display: block; }
+
+  .item-text { font-size: 14px; color: #374151; line-height: 1.5; flex: 1; }
+  .item-note { font-size: 12px; color: #9ca3af; margin-top: 2px; }
+  .tag { display: inline-block; font-size: 11px; font-weight: 600; padding: 1px 7px; border-radius: 99px; margin-right: 4px; margin-bottom: 4px; }
+  .tag-warning { background: #fef3c7; color: #92400e; }
+  .tag-critical { background: #fee2e2; color: #991b1b; }
+  .tag-mzi { background: #dbeafe; color: #1e40af; }
+  .tag-vl { background: #ede9fe; color: #5b21b6; }
+
+  .reset-btn { padding: 8px 16px; background: #f3f4f6; border: 1px solid #d1d5db; border-radius: 8px; font-size: 13px; cursor: pointer; color: #6b7280; transition: all 0.15s; }
+  .reset-btn:hover { background: #e5e7eb; color: #374151; }
+
+  .summary-box { background: linear-gradient(135deg, #6366f1, #8b5cf6); color: white; border-radius: 12px; padding: 20px 24px; margin-bottom: 24px; }
+  .summary-box h3 { font-size: 15px; font-weight: 700; margin-bottom: 4px; }
+  .summary-box p { font-size: 13px; opacity: 0.85; line-height: 1.6; }
+</style>
+</head>
+<body>
+
+<header>
+  <h1>MZI × Vocallabs — Go-Live Checklist</h1>
+  <p>Dual-perspective production readiness checklist for client deployments</p>
+</header>
+
+<div class="tabs">
+  <div class="tab active" onclick="switchTab('mzi')">MZI Checklist</div>
+  <div class="tab" onclick="switchTab('vl')">Vocallabs Checklist</div>
+  <div class="tab" onclick="switchTab('clients')">Client Index</div>
+</div>
+
+<!-- MZI PANEL -->
+<div class="panel active" id="panel-mzi">
+  <div class="client-select">
+    <label>Client</label>
+    <select id="mzi-client" onchange="updateClient('mzi')">
+      <option value="">Select client…</option>
+      <option>Hindware</option>
+      <option>Sunblaze</option>
+      <option>BOSS Appliances</option>
+      <option>VRIOM</option>
+      <option>Gramik</option>
+      <option>Inalsa</option>
+      <option>Milton</option>
+      <option>Beyond Appliances</option>
+      <option>Pooja Machine</option>
+    </select>
+    <div class="progress-bar-wrap">
+      <div class="progress-label">Completion</div>
+      <div class="progress-bar"><div class="progress-fill" id="mzi-fill" style="width:0%"></div></div>
+      <div class="progress-pct" id="mzi-pct">0 / 0</div>
+    </div>
+    <button class="reset-btn" onclick="resetPanel('mzi')">Reset</button>
+  </div>
+
+  <div class="summary-box">
+    <h3>MZI's Responsibility</h3>
+    <p>MZI owns the CRM, API endpoints, DID numbers, WhatsApp templates, and client onboarding. These items must be confirmed before Vocallabs can go live.</p>
+  </div>
+
+  <!-- Section 1 -->
+  <div class="section" id="mzi-s1">
+    <div class="section-header">
+      <span class="section-icon">🔌</span>
+      <span class="section-title">API Readiness</span>
+      <span class="section-count" id="mzi-s1-count">0 / 5</span>
+    </div>
+    <div class="item" onclick="toggle(this,'mzi')">
+      <div class="checkbox"><span class="checkmark">✓</span></div>
+      <div><div class="item-text">All CRM APIs are deployed to <strong>production</strong> (not staging)</div>
+      <div class="item-note">Recurring issue: CreateCoreTicket, UpdateAddress were often on staging when VL tried to use them</div></div>
+    </div>
+    <div class="item" onclick="toggle(this,'mzi')">
+      <div class="checkbox"><span class="checkmark">✓</span></div>
+      <div><div class="item-text">API accepts <strong>numeric IDs</strong> for ProductDivisionId, ProductLineId, ProductId (not text strings)</div>
+      <div class="item-note">Pass "0" for blank integer fields — not null, not empty string</div></div>
+    </div>
+    <div class="item" onclick="toggle(this,'mzi')">
+      <div class="checkbox"><span class="checkmark">✓</span></div>
+      <div><div class="item-text">API handles <strong>English-only input</strong> for name, address, area, city, state fields</div>
+      <div class="item-note">CRM cannot process Hindi/Devanagari text — VL will send transliterated English</div></div>
+    </div>
+    <div class="item" onclick="toggle(this,'mzi')">
+      <div class="checkbox"><span class="checkmark">✓</span></div>
+      <div><div class="item-text">AddCustomerAddress API tested with curl — returns success response (not empty)</div>
+      <div class="item-note">Pass 0 for area_id, city_id when blank; CustomerName field confirmed added</div></div>
+    </div>
+    <div class="item" onclick="toggle(this,'mzi')">
+      <div class="checkbox"><span class="checkmark">✓</span></div>
+      <div><div class="item-text">API credentials / auth keys shared with Vocallabs team (Ayushman)</div></div>
+    </div>
+  </div>
+
+  <!-- Section 2 -->
+  <div class="section" id="mzi-s2">
+    <div class="section-header">
+      <span class="section-icon">📋</span>
+      <span class="section-title">Client Data Setup</span>
+      <span class="section-count" id="mzi-s2-count">0 / 4</span>
+    </div>
+    <div class="item" onclick="toggle(this,'mzi')">
+      <div class="checkbox"><span class="checkmark">✓</span></div>
+      <div><div class="item-text">Complete <strong>product list</strong> shared with Vocallabs (product names, division IDs, line IDs)</div>
+      <div class="item-note">Required for product matching algorithm — different for every client</div></div>
+    </div>
+    <div class="item" onclick="toggle(this,'mzi')">
+      <div class="checkbox"><span class="checkmark">✓</span></div>
+      <div><div class="item-text"><strong>Company ID</strong> and <strong>Enterprise ID</strong> confirmed and shared for this client's CRM account</div></div>
+    </div>
+    <div class="item" onclick="toggle(this,'mzi')">
+      <div class="checkbox"><span class="checkmark">✓</span></div>
+      <div><div class="item-text">MZI SOM account created for client; login credentials shared for testing</div></div>
+    </div>
+    <div class="item" onclick="toggle(this,'mzi')">
+      <div class="checkbox"><span class="checkmark">✓</span></div>
+      <div><div class="item-text">Pincode coverage data / API integrated if required (e.g. BOSS Appliances)</div>
+      <div class="item-note"><span class="tag tag-warning">Pending for BOSS</span></div></div>
+    </div>
+  </div>
+
+  <!-- Section 3 -->
+  <div class="section" id="mzi-s3">
+    <div class="section-header">
+      <span class="section-icon">📞</span>
+      <span class="section-title">DID Numbers</span>
+      <span class="section-count" id="mzi-s3-count">0 / 4</span>
+    </div>
+    <div class="item" onclick="toggle(this,'mzi')">
+      <div class="checkbox"><span class="checkmark">✓</span></div>
+      <div><div class="item-text">DID number assigned and <strong>mapped to the correct agent</strong> in the Vocallabs panel</div>
+      <div class="item-note">Confirm with Raja that DID is visible under "My Numbers" in VL dashboard</div></div>
+    </div>
+    <div class="item" onclick="toggle(this,'mzi')">
+      <div class="checkbox"><span class="checkmark">✓</span></div>
+      <div><div class="item-text">DID tested — calls connect without "Extension 102 not available" error</div>
+      <div class="item-note">This error occurred for VRIOM, Inalsa, Gramik, Hindware simultaneously — check all at once</div></div>
+    </div>
+    <div class="item" onclick="toggle(this,'mzi')">
+      <div class="checkbox"><span class="checkmark">✓</span></div>
+      <div><div class="item-text">DID number <strong>locked to this agent</strong> — not reassigned accidentally to another client</div>
+      <div class="item-note">Vocallabs team should not change assigned DID once in production</div></div>
+    </div>
+    <div class="item" onclick="toggle(this,'mzi')">
+      <div class="checkbox"><span class="checkmark">✓</span></div>
+      <div><div class="item-text">Monthly DID rent confirmed and agreed by client / MZI commercial team</div>
+      <div class="item-note">All DIDs have monthly billing — Riya confirmed 25 Jun 2026</div></div>
+    </div>
+  </div>
+
+  <!-- Section 4 -->
+  <div class="section" id="mzi-s4">
+    <div class="section-header">
+      <span class="section-icon">💬</span>
+      <span class="section-title">WhatsApp & Notifications</span>
+      <span class="section-count" id="mzi-s4-count">0 / 3</span>
+    </div>
+    <div class="item" onclick="toggle(this,'mzi')">
+      <div class="checkbox"><span class="checkmark">✓</span></div>
+      <div><div class="item-text">WhatsApp template message <strong>registered and approved by Meta</strong></div>
+      <div class="item-note">Required for temp ticket notifications, ticket confirmations, and LP bot landing page links</div></div>
+    </div>
+    <div class="item" onclick="toggle(this,'mzi')">
+      <div class="checkbox"><span class="checkmark">✓</span></div>
+      <div><div class="item-text">WhatsApp SendMessage API endpoint shared with Vocallabs (CompanyId, EventId params confirmed)</div></div>
+    </div>
+    <div class="item" onclick="toggle(this,'mzi')">
+      <div class="checkbox"><span class="checkmark">✓</span></div>
+      <div><div class="item-text">Test: Customer receives ticket confirmation WhatsApp message after a test call</div>
+      <div class="item-note">Both registered and unregistered user flows must trigger messages</div></div>
+    </div>
+  </div>
+
+  <!-- Section 5 -->
+  <div class="section" id="mzi-s5">
+    <div class="section-header">
+      <span class="section-icon">🧪</span>
+      <span class="section-title">Testing Sign-Off</span>
+      <span class="section-count" id="mzi-s5-count">0 / 5</span>
+    </div>
+    <div class="item" onclick="toggle(this,'mzi')">
+      <div class="checkbox"><span class="checkmark">✓</span></div>
+      <div><div class="item-text">Test call: <strong>Registered user</strong> — agent recognises caller, creates ticket correctly in CRM</div></div>
+    </div>
+    <div class="item" onclick="toggle(this,'mzi')">
+      <div class="checkbox"><span class="checkmark">✓</span></div>
+      <div><div class="item-text">Test call: <strong>Unregistered user</strong> — agent collects details, ticket created, address stored in English</div></div>
+    </div>
+    <div class="item" onclick="toggle(this,'mzi')">
+      <div class="checkbox"><span class="checkmark">✓</span></div>
+      <div><div class="item-text">Test call: <strong>Human transfer</strong> — customer audio correctly bridged, no one-way audio issue</div>
+      <div class="item-note">Transfer number configured; confirm both parties can hear each other</div></div>
+    </div>
+    <div class="item" onclick="toggle(this,'mzi')">
+      <div class="checkbox"><span class="checkmark">✓</span></div>
+      <div><div class="item-text">CRM shows correct ticket with proper product name, division, description in English</div>
+      <div class="item-note">Verify pincode is numeric (e.g. "110019"), not partial or in Hindi numerals</div></div>
+    </div>
+    <div class="item" onclick="toggle(this,'mzi')">
+      <div class="checkbox"><span class="checkmark">✓</span></div>
+      <div><div class="item-text">MZI stakeholder (Sandeep / client POC) has done at least one live test call and signed off</div></div>
+    </div>
+  </div>
+</div>
+
+<!-- VOCALLABS PANEL -->
+<div class="panel" id="panel-vl">
+  <div class="client-select">
+    <label>Client</label>
+    <select id="vl-client" onchange="updateClient('vl')">
+      <option value="">Select client…</option>
+      <option>Hindware</option>
+      <option>Sunblaze</option>
+      <option>BOSS Appliances</option>
+      <option>VRIOM</option>
+      <option>Gramik</option>
+      <option>Inalsa</option>
+      <option>Milton</option>
+      <option>Beyond Appliances</option>
+      <option>Pooja Machine</option>
+    </select>
+    <div class="progress-bar-wrap">
+      <div class="progress-label">Completion</div>
+      <div class="progress-bar"><div class="progress-fill" id="vl-fill" style="width:0%"></div></div>
+      <div class="progress-pct" id="vl-pct">0 / 0</div>
+    </div>
+    <button class="reset-btn" onclick="resetPanel('vl')">Reset</button>
+  </div>
+
+  <div class="summary-box" style="background: linear-gradient(135deg, #7c3aed, #a855f7);">
+    <h3>Vocallabs' Responsibility</h3>
+    <p>Vocallabs owns the agent setup, API tool integration, language handling, DID mapping, and VL account configuration. These items must be confirmed before going live.</p>
+  </div>
+
+  <!-- Section 1 -->
+  <div class="section" id="vl-s1">
+    <div class="section-header">
+      <span class="section-icon">🤖</span>
+      <span class="section-title">Agent Setup</span>
+      <span class="section-count" id="vl-s1-count">0 / 5</span>
+    </div>
+    <div class="item" onclick="toggle(this,'vl')">
+      <div class="checkbox"><span class="checkmark">✓</span></div>
+      <div><div class="item-text">Agent created in VL dashboard with correct script / conversation flow</div>
+      <div class="item-note">Use base agent template where possible; customise per client product list</div></div>
+    </div>
+    <div class="item" onclick="toggle(this,'vl')">
+      <div class="checkbox"><span class="checkmark">✓</span></div>
+      <div><div class="item-text">All required <strong>tools added to the agent</strong>: get_products, create_ticket, update_address, service_request</div>
+      <div class="item-note">Missing tools = no transcription data + no CRM entries. Confirm each tool is visible in agent config</div></div>
+    </div>
+    <div class="item" onclick="toggle(this,'vl')">
+      <div class="checkbox"><span class="checkmark">✓</span></div>
+      <div><div class="item-text">Agent prompt tested for edge cases: repeated name-asking loop, product not found, call drop mid-flow</div></div>
+    </div>
+    <div class="item" onclick="toggle(this,'vl')">
+      <div class="checkbox"><span class="checkmark">✓</span></div>
+      <div><div class="item-text">Agent language set correctly (Hindi / English / bilingual per client requirement)</div>
+      <div class="item-note">Gramik = Hindi (Devanagari script in prompt); Hindware / Sunblaze = bilingual</div></div>
+    </div>
+    <div class="item" onclick="toggle(this,'vl')">
+      <div class="checkbox"><span class="checkmark">✓</span></div>
+      <div><div class="item-text">ASR/STT model confirmed and frozen for this client before go-live</div>
+      <div class="item-note">Do not switch model after client approval — causes regression</div></div>
+    </div>
+  </div>
+
+  <!-- Section 2 -->
+  <div class="section" id="vl-s2">
+    <div class="section-header">
+      <span class="section-icon">🔗</span>
+      <span class="section-title">API Integration</span>
+      <span class="section-count" id="vl-s2-count">0 / 5</span>
+    </div>
+    <div class="item" onclick="toggle(this,'vl')">
+      <div class="checkbox"><span class="checkmark">✓</span></div>
+      <div><div class="item-text">DID mapping configured at <code style="font-size:12px;background:#f3f4f6;padding:1px 5px;border-radius:4px">https://client-functions.vocallabs.ai/mzi/did-mapping</code></div>
+      <div class="item-note">Maps DID → Client ID + Company ID. Must be done before any test call</div></div>
+    </div>
+    <div class="item" onclick="toggle(this,'vl')">
+      <div class="checkbox"><span class="checkmark">✓</span></div>
+      <div><div class="item-text">All API calls use <strong>production</strong> MZI endpoint (mtbotapi.mzservices.net) — not staging</div></div>
+    </div>
+    <div class="item" onclick="toggle(this,'vl')">
+      <div class="checkbox"><span class="checkmark">✓</span></div>
+      <div><div class="item-text">Hindi → English transliteration active: name, address, area always sent as English to CRM</div>
+      <div class="item-note">Numbers spoken in Hindi (e.g. "एक एक zero zero") must be normalised to digits before API call</div></div>
+    </div>
+    <div class="item" onclick="toggle(this,'vl')">
+      <div class="checkbox"><span class="checkmark">✓</span></div>
+      <div><div class="item-text">ProductDivisionId, ProductLineId sent as <strong>numeric strings</strong>, not text labels</div>
+      <div class="item-note">e.g. "209" not "Kitchen Appliances"; "0" not "null" when blank</div></div>
+    </div>
+    <div class="item" onclick="toggle(this,'vl')">
+      <div class="checkbox"><span class="checkmark">✓</span></div>
+      <div><div class="item-text">Tool calling for new APIs (LP bot WhatsApp send, pincode coverage) documented and added via tool builder</div>
+      <div class="item-note">MZI can add standard API tools themselves using VL tool documentation</div></div>
+    </div>
+  </div>
+
+  <!-- Section 3 -->
+  <div class="section" id="vl-s3">
+    <div class="section-header">
+      <span class="section-icon">📞</span>
+      <span class="section-title">Telephony Configuration</span>
+      <span class="section-count" id="vl-s3-count">0 / 4</span>
+    </div>
+    <div class="item" onclick="toggle(this,'vl')">
+      <div class="checkbox"><span class="checkmark">✓</span></div>
+      <div><div class="item-text">DID number assigned in VL panel and visible under "My Numbers" for this client's account</div></div>
+    </div>
+    <div class="item" onclick="toggle(this,'vl')">
+      <div class="checkbox"><span class="checkmark">✓</span></div>
+      <div><div class="item-text">DID mapped to the correct agent — confirm Agent ID matches what MZI expects</div></div>
+    </div>
+    <div class="item" onclick="toggle(this,'vl')">
+      <div class="checkbox"><span class="checkmark">✓</span></div>
+      <div><div class="item-text">Human transfer number configured in agent; transfer tested end-to-end (no one-way audio)</div></div>
+    </div>
+    <div class="item" onclick="toggle(this,'vl')">
+      <div class="checkbox"><span class="checkmark">✓</span></div>
+      <div><div class="item-text">VL account <strong>credit/balance</strong> sufficient for go-live volume (top up if low)</div>
+      <div class="item-note">Low balance = calls fail silently. Check before any client launch day</div></div>
+    </div>
+  </div>
+
+  <!-- Section 4 -->
+  <div class="section" id="vl-s4">
+    <div class="section-header">
+      <span class="section-icon">🧪</span>
+      <span class="section-title">Testing Sign-Off</span>
+      <span class="section-count" id="vl-s4-count">0 / 5</span>
+    </div>
+    <div class="item" onclick="toggle(this,'vl')">
+      <div class="checkbox"><span class="checkmark">✓</span></div>
+      <div><div class="item-text">Test call: Registered user — ticket created in CRM, transcript visible in VL panel</div></div>
+    </div>
+    <div class="item" onclick="toggle(this,'vl')">
+      <div class="checkbox"><span class="checkmark">✓</span></div>
+      <div><div class="item-text">Test call: Unregistered user — name/address captured in English, ticket and address saved</div></div>
+    </div>
+    <div class="item" onclick="toggle(this,'vl')">
+      <div class="checkbox"><span class="checkmark">✓</span></div>
+      <div><div class="item-text">Test call: Call dropped mid-flow — temp ticket / fallback WhatsApp message triggered correctly</div></div>
+    </div>
+    <div class="item" onclick="toggle(this,'vl')">
+      <div class="checkbox"><span class="checkmark">✓</span></div>
+      <div><div class="item-text">Product recognition verified: key products tested by name (e.g. "Cooler" not misheard as "Color")</div></div>
+    </div>
+    <div class="item" onclick="toggle(this,'vl')">
+      <div class="checkbox"><span class="checkmark">✓</span></div>
+      <div><div class="item-text">Riya / Ayushman sign-off: no open bugs flagged by MZI team on this agent before live date</div></div>
+    </div>
+  </div>
+
+  <!-- Section 5 -->
+  <div class="section" id="vl-s5">
+    <div class="section-header">
+      <span class="section-icon">🚀</span>
+      <span class="section-title">Go-Live Gate</span>
+      <span class="section-count" id="vl-s5-count">0 / 3</span>
+    </div>
+    <div class="item" onclick="toggle(this,'vl')">
+      <div class="checkbox"><span class="checkmark">✓</span></div>
+      <div><div class="item-text">MZI commercial sign-off received (contract / SoW signed between MZI and Vocallabs)</div>
+      <div class="item-note">Do not assign production DID or go live without commercial confirmation from Nilesh</div></div>
+    </div>
+    <div class="item" onclick="toggle(this,'vl')">
+      <div class="checkbox"><span class="checkmark">✓</span></div>
+      <div><div class="item-text">Production DID locked — communicated to MZI not to change or reassign the number</div></div>
+    </div>
+    <div class="item" onclick="toggle(this,'vl')">
+      <div class="checkbox"><span class="checkmark">✓</span></div>
+      <div><div class="item-text">Go-live date confirmed with Nilesh + Manpreet / Amit (MZI sales) in writing</div></div>
+    </div>
+  </div>
+</div>
+
+<!-- CLIENT INDEX PANEL -->
+<div class="panel" id="panel-clients">
+  <div class="summary-box" style="background: linear-gradient(135deg, #0f766e, #0d9488);">
+    <h3>Client Deployment Index</h3>
+    <p>Quick reference for all MZI clients in the Vocallabs pipeline. 15–16 DID numbers engaged across pilots.</p>
+  </div>
+
+  <div class="section">
+    <div class="section-header"><span class="section-icon">📱</span><span class="section-title">Active Clients & Agent Details</span></div>
+    <table style="width:100%;border-collapse:collapse;font-size:13px;">
+      <thead>
+        <tr style="background:#f9fafb;text-align:left;">
+          <th style="padding:10px 16px;font-weight:600;color:#374151;border-bottom:1px solid #e5e7eb;">Client</th>
+          <th style="padding:10px 16px;font-weight:600;color:#374151;border-bottom:1px solid #e5e7eb;">Bot Type</th>
+          <th style="padding:10px 16px;font-weight:600;color:#374151;border-bottom:1px solid #e5e7eb;">Agent ID (VL)</th>
+          <th style="padding:10px 16px;font-weight:600;color:#374151;border-bottom:1px solid #e5e7eb;">DID Status</th>
+          <th style="padding:10px 16px;font-weight:600;color:#374151;border-bottom:1px solid #e5e7eb;">Notes</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr style="border-bottom:1px solid #f3f4f6;">
+          <td style="padding:10px 16px;font-weight:600;">Hindware</td>
+          <td style="padding:10px 16px;">Inbound Service</td>
+          <td style="padding:10px 16px;font-family:monospace;font-size:11px;color:#6b7280;">—</td>
+          <td style="padding:10px 16px;"><span class="tag tag-warning">Testing</span></td>
+          <td style="padding:10px 16px;color:#6b7280;">Bilingual; 45-agent human handoff; temp ticket WA messages</td>
+        </tr>
+        <tr style="border-bottom:1px solid #f3f4f6;background:#fafafa;">
+          <td style="padding:10px 16px;font-weight:600;">Sunblaze</td>
+          <td style="padding:10px 16px;">Inbound Service</td>
+          <td style="padding:10px 16px;font-family:monospace;font-size:11px;color:#6b7280;">eb9ccb3e-…6c25</td>
+          <td style="padding:10px 16px;"><span class="tag tag-warning">Testing</span></td>
+          <td style="padding:10px 16px;color:#6b7280;">Hindi unregistered user address fix in progress (Jun 17)</td>
+        </tr>
+        <tr style="border-bottom:1px solid #f3f4f6;">
+          <td style="padding:10px 16px;font-weight:600;">BOSS Appliances</td>
+          <td style="padding:10px 16px;">Inbound Service</td>
+          <td style="padding:10px 16px;font-family:monospace;font-size:11px;color:#6b7280;">2f79fa47-…bee</td>
+          <td style="padding:10px 16px;"><span class="tag tag-critical">Pending</span></td>
+          <td style="padding:10px 16px;color:#6b7280;">Pincode coverage API integration pending; API docs emailed Jun 18</td>
+        </tr>
+        <tr style="border-bottom:1px solid #f3f4f6;background:#fafafa;">
+          <td style="padding:10px 16px;font-weight:600;">VRIOM</td>
+          <td style="padding:10px 16px;">Inbound Service</td>
+          <td style="padding:10px 16px;font-family:monospace;font-size:11px;color:#6b7280;">—</td>
+          <td style="padding:10px 16px;"><span class="tag tag-warning">Testing</span></td>
+          <td style="padding:10px 16px;color:#6b7280;">DID: 9484954086, 9240292826</td>
+        </tr>
+        <tr style="border-bottom:1px solid #f3f4f6;">
+          <td style="padding:10px 16px;font-weight:600;">Gramik</td>
+          <td style="padding:10px 16px;">Outbound</td>
+          <td style="padding:10px 16px;font-family:monospace;font-size:11px;color:#6b7280;">GRAMIK Outbound Agent</td>
+          <td style="padding:10px 16px;"><span class="tag tag-warning">Testing</span></td>
+          <td style="padding:10px 16px;color:#6b7280;">Hindi (Devanagari); contact list uploaded</td>
+        </tr>
+        <tr style="border-bottom:1px solid #f3f4f6;background:#fafafa;">
+          <td style="padding:10px 16px;font-weight:600;">Inalsa</td>
+          <td style="padding:10px 16px;">Inbound Service</td>
+          <td style="padding:10px 16px;font-family:monospace;font-size:11px;color:#6b7280;">—</td>
+          <td style="padding:10px 16px;"><span class="tag tag-warning">Testing</span></td>
+          <td style="padding:10px 16px;color:#6b7280;">—</td>
+        </tr>
+        <tr style="border-bottom:1px solid #f3f4f6;">
+          <td style="padding:10px 16px;font-weight:600;">Milton</td>
+          <td style="padding:10px 16px;">Landing Page Bot</td>
+          <td style="padding:10px 16px;font-family:monospace;font-size:11px;color:#6b7280;">65af5ee6-…cfe8</td>
+          <td style="padding:10px 16px;"><span class="tag tag-critical">Pending</span></td>
+          <td style="padding:10px 16px;color:#6b7280;">WA template approved; LP link send integration pending from VL</td>
+        </tr>
+        <tr style="border-bottom:1px solid #f3f4f6;background:#fafafa;">
+          <td style="padding:10px 16px;font-weight:600;">Beyond Appliances</td>
+          <td style="padding:10px 16px;">Landing Page Bot</td>
+          <td style="padding:10px 16px;font-family:monospace;font-size:11px;color:#6b7280;">23193bd3-…2eb</td>
+          <td style="padding:10px 16px;"><span class="tag tag-critical">Pending</span></td>
+          <td style="padding:10px 16px;color:#6b7280;">DID: 919228131604 assigned; WA API integration pending</td>
+        </tr>
+        <tr>
+          <td style="padding:10px 16px;font-weight:600;">Pooja Machine</td>
+          <td style="padding:10px 16px;">Inbound Service</td>
+          <td style="padding:10px 16px;font-family:monospace;font-size:11px;color:#6b7280;">99022d6d-…c22b</td>
+          <td style="padding:10px 16px;"><span class="tag tag-critical">Pending</span></td>
+          <td style="padding:10px 16px;color:#6b7280;">DID requested Jun 22; setup not confirmed</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <div class="section" style="margin-top:16px;">
+    <div class="section-header"><span class="section-icon">⚠️</span><span class="section-title">Known Issues to Resolve Before Any Go-Live</span></div>
+    <div class="item">
+      <div style="width:8px;height:8px;background:#ef4444;border-radius:50%;flex-shrink:0;margin-top:6px;"></div>
+      <div class="item-text">Hindi text reaching CRM — Sunblaze unregistered user address still in Hindi as of Jun 17. MZI API confirmed English-only support (Jun 22).</div>
+    </div>
+    <div class="item">
+      <div style="width:8px;height:8px;background:#ef4444;border-radius:50%;flex-shrink:0;margin-top:6px;"></div>
+      <div class="item-text">BOSS Pincode coverage API integration not yet done by Vocallabs (flagged Jun 22 call points).</div>
+    </div>
+    <div class="item">
+      <div style="width:8px;height:8px;background:#ef4444;border-radius:50%;flex-shrink:0;margin-top:6px;"></div>
+      <div class="item-text">Milton & Beyond LP bot: WhatsApp landing page link send not yet integrated into VL agent tools.</div>
+    </div>
+    <div class="item">
+      <div style="width:8px;height:8px;background:#f59e0b;border-radius:50%;flex-shrink:0;margin-top:6px;"></div>
+      <div class="item-text">Raja (MZI) to share full DID-to-agent mapping list to Riya by Jun 25 — follow up if not received.</div>
+    </div>
+  </div>
+</div>
+
+<script>
+const state = { mzi: {}, vl: {} };
+
+function toggle(el, panel) {
+  el.classList.toggle('checked');
+  updateProgress(panel);
+}
+
+function updateProgress(panel) {
+  const p = document.getElementById('panel-' + panel);
+  const all = p.querySelectorAll('.item');
+  const checked = p.querySelectorAll('.item.checked');
+  const pct = all.length ? Math.round(checked.length / all.length * 100) : 0;
+  document.getElementById(panel + '-fill').style.width = pct + '%';
+  document.getElementById(panel + '-pct').textContent = checked.length + ' / ' + all.length;
+
+  // Update section counts
+  p.querySelectorAll('.section').forEach(sec => {
+    const sAll = sec.querySelectorAll('.item');
+    const sChecked = sec.querySelectorAll('.item.checked');
+    const countEl = sec.querySelector('.section-count');
+    if (countEl) countEl.textContent = sChecked.length + ' / ' + sAll.length;
+  });
+}
+
+function resetPanel(panel) {
+  const p = document.getElementById('panel-' + panel);
+  p.querySelectorAll('.item').forEach(i => i.classList.remove('checked'));
+  updateProgress(panel);
+}
+
+function updateClient(panel) {
+  const sel = document.getElementById(panel + '-client').value;
+  // Visual feedback only — state is per checklist instance
+}
+
+function switchTab(tab) {
+  document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+  document.querySelectorAll('.panel').forEach(p => p.classList.remove('active'));
+  event.target.classList.add('active');
+  document.getElementById('panel-' + tab).classList.add('active');
+}
+
+// Init progress
+updateProgress('mzi');
+updateProgress('vl');
+</script>
+</body>
+</html>
