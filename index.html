@@ -580,7 +580,7 @@
 
 <script>
 // ─── REPLACE THIS WITH YOUR DEPLOYED APPS SCRIPT URL ───────────────────────
-const APPS_SCRIPT_URL = 'PASTE_YOUR_APPS_SCRIPT_URL_HERE';
+const APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbxvW5YMIlXIdYrMhIkTnxiQeYlidnRs147N8oaWk6UNDjltl77qWnqUPQo5ceCWm51R/exec';
 // ───────────────────────────────────────────────────────────────────────────
 
 function toggle(el, panel) {
@@ -627,7 +627,7 @@ function submitChecklist(panel) {
 
   if (!client) { showToast('Please select a client first', 'error'); return; }
   if (!submitter) { showToast('Please enter your name', 'error'); return; }
-  if (APPS_SCRIPT_URL === 'PASTE_YOUR_APPS_SCRIPT_URL_HERE') {
+  if (APPS_SCRIPT_URL === 'https://script.google.com/macros/s/AKfycbxvW5YMIlXIdYrMhIkTnxiQeYlidnRs147N8oaWk6UNDjltl77qWnqUPQo5ceCWm51R/exec') {
     showToast('Apps Script URL not configured yet', 'error'); return;
   }
 
