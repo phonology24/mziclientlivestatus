@@ -60,9 +60,44 @@
   .summary-box { background: linear-gradient(135deg, #6366f1, #8b5cf6); color: white; border-radius: 12px; padding: 20px 24px; margin-bottom: 24px; }
   .summary-box h3 { font-size: 15px; font-weight: 700; margin-bottom: 4px; }
   .summary-box p { font-size: 13px; opacity: 0.85; line-height: 1.6; }
+
+  /* Submit bar */
+  .submit-bar {
+    display: flex; align-items: center; gap: 12px; flex-wrap: wrap;
+    background: white; border: 1px solid #e5e7eb; border-radius: 12px;
+    padding: 16px 20px; margin-top: 8px;
+  }
+  .submit-bar label { font-size: 13px; font-weight: 600; color: #6b7280; white-space: nowrap; }
+  .submitter-input {
+    flex: 1; min-width: 160px; padding: 8px 12px;
+    border: 1px solid #d1d5db; border-radius: 8px;
+    font-size: 14px; color: #1a1a2e; outline: none;
+    transition: border-color 0.2s;
+  }
+  .submitter-input:focus { border-color: #6366f1; box-shadow: 0 0 0 3px rgba(99,102,241,0.1); }
+  .submit-btn {
+    padding: 9px 20px; background: #6366f1; color: white;
+    border: none; border-radius: 8px; font-size: 14px; font-weight: 600;
+    cursor: pointer; transition: all 0.15s; white-space: nowrap;
+  }
+  .submit-btn:hover:not(:disabled) { background: #4f46e5; transform: translateY(-1px); }
+  .submit-btn:disabled { opacity: 0.6; cursor: not-allowed; transform: none; }
+
+  /* Toast */
+  .toast {
+    position: fixed; bottom: 28px; left: 50%; transform: translateX(-50%) translateY(80px);
+    background: #1a1a2e; color: white; padding: 12px 24px; border-radius: 99px;
+    font-size: 14px; font-weight: 500; z-index: 100;
+    transition: transform 0.3s ease, opacity 0.3s ease; opacity: 0; pointer-events: none;
+  }
+  .toast.show { transform: translateX(-50%) translateY(0); opacity: 1; }
+  .toast.success { background: #16a34a; }
+  .toast.error { background: #dc2626; }
 </style>
 </head>
 <body>
+
+<div class="toast" id="toast"></div>
 
 <header>
   <h1>MZI × Vocallabs — Go-Live Checklist</h1>
@@ -70,9 +105,9 @@
 </header>
 
 <div class="tabs">
-  <div class="tab active" onclick="switchTab('mzi')">MZI Checklist</div>
-  <div class="tab" onclick="switchTab('vl')">Vocallabs Checklist</div>
-  <div class="tab" onclick="switchTab('clients')">Client Index</div>
+  <div class="tab active" onclick="switchTab('mzi', event)">MZI Checklist</div>
+  <div class="tab" onclick="switchTab('vl', event)">Vocallabs Checklist</div>
+  <div class="tab" onclick="switchTab('clients', event)">Client Index</div>
 </div>
 
 <!-- MZI PANEL -->
@@ -245,6 +280,13 @@
       <div class="checkbox"><span class="checkmark">✓</span></div>
       <div><div class="item-text">MZI stakeholder (Sandeep / client POC) has done at least one live test call and signed off</div></div>
     </div>
+  </div>
+
+  <!-- MZI Submit Bar -->
+  <div class="submit-bar">
+    <label>Submitted by</label>
+    <input type="text" id="mzi-submitter" class="submitter-input" placeholder="Your name…">
+    <button class="submit-btn" onclick="submitChecklist('mzi')">Submit to Google Sheets</button>
   </div>
 </div>
 
@@ -419,6 +461,13 @@
       <div><div class="item-text">Go-live date confirmed with Nilesh + Manpreet / Amit (MZI sales) in writing</div></div>
     </div>
   </div>
+
+  <!-- VL Submit Bar -->
+  <div class="submit-bar">
+    <label>Submitted by</label>
+    <input type="text" id="vl-submitter" class="submitter-input" placeholder="Your name…">
+    <button class="submit-btn" onclick="submitChecklist('vl')">Submit to Google Sheets</button>
+  </div>
 </div>
 
 <!-- CLIENT INDEX PANEL -->
@@ -530,7 +579,9 @@
 </div>
 
 <script>
-const state = { mzi: {}, vl: {} };
+// ─── REPLACE THIS WITH YOUR DEPLOYED APPS SCRIPT URL ───────────────────────
+const APPS_SCRIPT_URL = 'PASTE_YOUR_APPS_SCRIPT_URL_HERE';
+// ───────────────────────────────────────────────────────────────────────────
 
 function toggle(el, panel) {
   el.classList.toggle('checked');
@@ -545,7 +596,6 @@ function updateProgress(panel) {
   document.getElementById(panel + '-fill').style.width = pct + '%';
   document.getElementById(panel + '-pct').textContent = checked.length + ' / ' + all.length;
 
-  // Update section counts
   p.querySelectorAll('.section').forEach(sec => {
     const sAll = sec.querySelectorAll('.item');
     const sChecked = sec.querySelectorAll('.item.checked');
@@ -561,18 +611,94 @@ function resetPanel(panel) {
 }
 
 function updateClient(panel) {
-  const sel = document.getElementById(panel + '-client').value;
-  // Visual feedback only — state is per checklist instance
+  // Visual feedback only
 }
 
-function switchTab(tab) {
+function switchTab(tab, event) {
   document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
   document.querySelectorAll('.panel').forEach(p => p.classList.remove('active'));
   event.target.classList.add('active');
   document.getElementById('panel-' + tab).classList.add('active');
 }
 
-// Init progress
+function submitChecklist(panel) {
+  const client = document.getElementById(panel + '-client').value;
+  const submitter = document.getElementById(panel + '-submitter').value.trim();
+
+  if (!client) { showToast('Please select a client first', 'error'); return; }
+  if (!submitter) { showToast('Please enter your name', 'error'); return; }
+  if (APPS_SCRIPT_URL === 'PASTE_YOUR_APPS_SCRIPT_URL_HERE') {
+    showToast('Apps Script URL not configured yet', 'error'); return;
+  }
+
+  const p = document.getElementById('panel-' + panel);
+
+  // Collect items
+  const items = [];
+  p.querySelectorAll('.item').forEach(item => {
+    const textEl = item.querySelector('.item-text');
+    items.push({
+      text: textEl ? textEl.innerText.replace(/\s+/g, ' ').trim() : '',
+      checked: item.classList.contains('checked')
+    });
+  });
+
+  // Collect section scores
+  const sections = [];
+  p.querySelectorAll('.section').forEach(sec => {
+    const titleEl = sec.querySelector('.section-title');
+    const sAll = sec.querySelectorAll('.item').length;
+    const sChecked = sec.querySelectorAll('.item.checked').length;
+    sections.push({
+      name: titleEl ? titleEl.textContent.trim() : '',
+      score: sChecked + '/' + sAll
+    });
+  });
+
+  const totalChecked = p.querySelectorAll('.item.checked').length;
+  const totalItems = p.querySelectorAll('.item').length;
+
+  const payload = {
+    timestamp: new Date().toLocaleString('en-IN', { timeZone: 'Asia/Kolkata' }),
+    submitter,
+    panel: panel === 'mzi' ? 'MZI' : 'Vocallabs',
+    client,
+    overallScore: totalChecked + '/' + totalItems,
+    overallPct: totalItems ? Math.round(totalChecked / totalItems * 100) + '%' : '0%',
+    sections,
+    items
+  };
+
+  const btn = document.querySelector('#panel-' + panel + ' .submit-btn');
+  btn.textContent = 'Submitting…';
+  btn.disabled = true;
+
+  fetch(APPS_SCRIPT_URL, {
+    method: 'POST',
+    mode: 'no-cors',
+    headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+    body: JSON.stringify(payload)
+  })
+  .then(() => {
+    showToast('✅ Submitted! Check your Google Sheet.', 'success');
+    btn.textContent = 'Submit to Google Sheets';
+    btn.disabled = false;
+  })
+  .catch(() => {
+    showToast('❌ Submission failed. Check your connection.', 'error');
+    btn.textContent = 'Submit to Google Sheets';
+    btn.disabled = false;
+  });
+}
+
+function showToast(msg, type) {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.className = 'toast ' + (type || '');
+  t.classList.add('show');
+  setTimeout(() => t.classList.remove('show'), 3500);
+}
+
 updateProgress('mzi');
 updateProgress('vl');
 </script>
